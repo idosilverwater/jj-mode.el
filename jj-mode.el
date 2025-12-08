@@ -1335,14 +1335,18 @@ ARGS can be transient related infix, for example
            "Undo failed")
       (jj-log-refresh))))
 
-(defun jj-abandon ()
-  "Abandon a changeset."
-  (interactive)
-  (if-let ((change-id (jj-get-changeset-at-point)))
+(defun jj-abandon (arg)
+  "Abandon a changeset.
+With a prefix argument, prompt for the revision to abandon."
+  (interactive "P")
+  (if-let ((change-id (if arg
+                          (let ((rev (read-string "Abandon revision: ")))
+                            (unless (string-empty-p rev) rev))
+                        (jj-get-changeset-at-point))))
       (progn
         (jj--run-command "abandon" "-r" change-id)
         (jj-log-refresh))
-    (message "Can only run abandon on a change")))
+    (message "No change specified or selected to abandon")))
 
 (defun jj-new (arg)
   "Create a new changeset.
